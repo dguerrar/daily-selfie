@@ -147,12 +147,20 @@ public class SelfieListActivity extends ListActivity implements LoaderCallbacks<
 		if (id == R.id.action_alarm) {
 			boolean enableAlarms = !mSharedPreferences.getBoolean(ALARM_KEY, true);
 			mSharedPreferences.edit().putBoolean(ALARM_KEY, enableAlarms).commit();
+			AlarmManager alarm = (AlarmManager)getSystemService(Service.ALARM_SERVICE);
 			if (enableAlarms) {
 				item.setTitle(R.string.action_disable_alarm);
+				if (mAlarmOperation != null) {
+					Log.i(TAG,"programming alarm");
+					alarm.setRepeating(
+							AlarmManager.ELAPSED_REALTIME_WAKEUP, 
+							SystemClock.elapsedRealtime()+INITIAL_DELAY, 
+							REPEAT_DELAY, mAlarmOperation);
+				}
+				
 			} else {
 				item.setTitle(R.string.action_enable_alarm);
 				if (mAlarmOperation != null) {
-					AlarmManager alarm = (AlarmManager)getSystemService(Service.ALARM_SERVICE);
 					Log.i(TAG,"canceling alarm");
 					alarm.cancel(mAlarmOperation);
 				}
