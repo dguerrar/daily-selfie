@@ -64,23 +64,7 @@ public class SelfieListActivity extends ListActivity implements LoaderCallbacks<
 		getLoaderManager().initLoader(0, null, this);
 		mSharedPreferences = getSharedPreferences("selfie", Context.MODE_PRIVATE);
 		
-		//Setting the alarm
-		mAlarmOperation = PendingIntent.getBroadcast(
-				getApplicationContext(), 
-				0, 
-				new Intent(getApplicationContext(),AlarmReceiver.class), 
-				0);
-		
-		AlarmManager alarm = (AlarmManager) getSystemService(Service.ALARM_SERVICE);
-		if (mSharedPreferences.getBoolean(ALARM_KEY, true)) {
-			Log.i(TAG,"programming alarm");
-			alarm.setRepeating(
-					AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-					SystemClock.elapsedRealtime()+INITIAL_DELAY, 
-					REPEAT_DELAY, mAlarmOperation);
-		} else {
-			Log.i(TAG,"alarm disabled, not triggering");
-		}
+		setAlarm(null,false);
 	
 		
 	}
@@ -105,11 +89,7 @@ public class SelfieListActivity extends ListActivity implements LoaderCallbacks<
 		
 		MenuItem item = menu.findItem(R.id.action_alarm);
 		//Setting the original enable/disable value for alarms
-		if (mSharedPreferences.getBoolean(ALARM_KEY, true)) {
-			item.setTitle(R.string.action_disable_alarm);
-		} else {
-			item.setTitle(R.string.action_enable_alarm);
-		}
+		setAlarm(item,false);
 		return true;
 	}
 
@@ -145,26 +125,8 @@ public class SelfieListActivity extends ListActivity implements LoaderCallbacks<
 			return true;
 		}
 		if (id == R.id.action_alarm) {
-			boolean enableAlarms = !mSharedPreferences.getBoolean(ALARM_KEY, true);
-			mSharedPreferences.edit().putBoolean(ALARM_KEY, enableAlarms).commit();
-			AlarmManager alarm = (AlarmManager)getSystemService(Service.ALARM_SERVICE);
-			if (enableAlarms) {
-				item.setTitle(R.string.action_disable_alarm);
-				if (mAlarmOperation != null) {
-					Log.i(TAG,"programming alarm");
-					alarm.setRepeating(
-							AlarmManager.ELAPSED_REALTIME_WAKEUP, 
-							SystemClock.elapsedRealtime()+INITIAL_DELAY, 
-							REPEAT_DELAY, mAlarmOperation);
-				}
-				
-			} else {
-				item.setTitle(R.string.action_enable_alarm);
-				if (mAlarmOperation != null) {
-					Log.i(TAG,"canceling alarm");
-					alarm.cancel(mAlarmOperation);
-				}
-			}
+			Log.d(TAG,"click on toggle alarm");
+			setAlarm(item,true);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -206,6 +168,51 @@ public class SelfieListActivity extends ListActivity implements LoaderCallbacks<
 			}
 		}
 		
+	}
+	
+	/**
+	 * Triggers the alarm if needed.
+	 * Also set the correct label for the item if provided. 
+	 * Also toggle the alarm setting if requested
+	 * @param item the menu item to edit the label
+	 * @param toggle if the alarm parameter needs to be toggled
+	 */
+	protected void setAlarm(MenuItem item,boolean toggle) {
+		//Setting the alarm
+		if (mAlarmOperation == null) {
+			Log.d(TAG,"initiating alarm operation");
+			mAlarmOperation = PendingIntent.getBroadcast(
+				getApplicationContext(), 
+				0, 
+				new Intent(getApplicationContext(),AlarmReceiver.class), 
+				0);
+		}
+		
+		boolean alarmEnabled = mSharedPreferences.getBoolean(ALARM_KEY, true);
+		if (toggle) {
+			Log.d(TAG,"requesting alarm toggle");
+			alarmEnabled = !alarmEnabled;
+			mSharedPreferences.edit().putBoolean(ALARM_KEY, alarmEnabled).commit();
+		}
+		
+		AlarmManager alarm = (AlarmManager) getSystemService(Service.ALARM_SERVICE);
+		if (alarmEnabled) {
+			Log.i(TAG,"programming alarm");
+			alarm.setRepeating(
+					AlarmManager.ELAPSED_REALTIME_WAKEUP, 
+					SystemClock.elapsedRealtime()+INITIAL_DELAY, 
+					REPEAT_DELAY, mAlarmOperation);
+		} else {
+			Log.i(TAG,"alarm disabled, canceling");
+			alarm.cancel(mAlarmOperation);
+		}
+		
+		if (item != null) {
+			if (alarmEnabled)
+				item.setTitle(R.string.action_disable_alarm);
+			else
+				item.setTitle(R.string.action_enable_alarm);
+		}
 	}
 	
 	@Override
