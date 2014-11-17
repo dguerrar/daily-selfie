@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="fr.clouddev.dailyselfie.SelfieListActivity" >
+
+    <item
+        android:id="@+id/action_picture"
+        android:orderInCategory="100"
+        android:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:title="@string/action_take_picture"/>
+    <item
+        android:id="@+id/action_alarm"
+        android:showAsAction="never"
+        android:title="@string/action_disable_alarm"
+        />
+
+</menu>

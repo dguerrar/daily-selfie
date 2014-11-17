@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal" 
+    android:gravity="center_vertical">
+    
+    <ImageView 
+        android:id="@+id/selfie_bitmap"
+        android:layout_width="100dip" 
+        android:layout_height="100dip"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_launcher"
+        />
+        
+    <TextView
+        android:id="@+id/selfie_name"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:text="my_selfie_2014_01_01-10:01:01"
+        android:layout_weight="1"
+        ></TextView>
+
+</LinearLayout>
